@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task History</title>
+</head>
+<body>
+    <h1>Task History</h1>
+    
+
+    {% for task in tasks %}
+    {{ task.name }}
+    <ul>
+        {% for day, completed in task.history.items() %}
+            <li>
+                {{ day }} — 
+                {{ "Completed" if completed else "Not Completed" }}
+            </li>
+        {% endfor %}
+    </ul>
+    <br>
+    {% endfor %}
+
+    <a href="/">Back</a>
+</body>
+</html>

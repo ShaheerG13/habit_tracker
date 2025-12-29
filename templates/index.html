@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Daily Task Check</title>
+</head>
+<body>
+    <h1>Daily Habits:</h1>
+
+    <form method="post">
+        {% for task in tasks %}
+            <label>
+                {{ task.name }}
+                <input type="checkbox" name="{{ task.name }}completed" {% if task.today() %}checked{% endif %}>
+            </label>
+            <br>
+        {% endfor %}
+        
+        <br>
+        <button type="submit">Save</button>
+    </form>
+
+    <br><br>
+    <a href="/history">View Task History</a>
+</body>
+</html>
