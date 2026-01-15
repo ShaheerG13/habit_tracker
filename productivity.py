@@ -4,7 +4,6 @@ from psycopg2 import pool
 from psycopg2.extras import execute_values
 import os
 from dotenv import load_dotenv
-from collections import defaultdict
 from datetime import date
 
 app = Flask(__name__)
