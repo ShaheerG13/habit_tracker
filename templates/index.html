@@ -1,25 +1,25 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Daily Task Check</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Daily Habits:</h1>
+    <div class="app-container">
+        <h1>Daily Habits</h1>
 
-    <form method="post">
-        {% for task in tasks %}
-            <label>
-                {{ task.name }}
-                <input type="checkbox" name="{{ task.name }}completed" {% if task.today() %}checked{% endif %}>
-            </label>
-            <br>
-        {% endfor %}
-        
-        <br>
-        <button type="submit">Save</button>
-    </form>
+        <form method="post" class="habit-form">
+            {% for hid, name in habit_names.items() %}
+                <label class="habit-label">
+                    <input type="checkbox" name="habit_{{ hid }}" {% if task_status(hid) %}checked{% endif %}>
+                    <span>{{ name }}</span>
+                </label>
+            {% endfor %}
+            <button type="submit" class="save-btn">Save</button>
+        </form>
 
-    <br><br>
-    <a href="/history">View Task History</a>
+        <a href="/history" class="history-link">View Task History</a>
+    </div>
 </body>
 </html>

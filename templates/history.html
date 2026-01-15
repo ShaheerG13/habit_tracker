@@ -2,24 +2,56 @@
 <html>
 <head>
     <title>Task History</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Task History</h1>
-    
 
-    {% for task in tasks %}
-    {{ task.name }}
-    <ul>
-        {% for day, completed in task.history.items() %}
-            <li>
-                {{ day }} — 
-                {{ "Completed" if completed else "Not Completed" }}
-            </li>
-        {% endfor %}
-    </ul>
-    <br>
-    {% endfor %}
+    <div class="container">
+        <div class="header">
+            <h1>Task History</h1>
+            <div class="controls">
+                <div class="habit-selector">
+                    <select id="habitSelect">
+                        <option value="">Select a habit...</option>
+                    </select>
+                </div>
+                <div class="view-selector">
+                    <button class="view-btn active" data-view="1">1 Month</button>
+                    <button class="view-btn" data-view="3">3 Months</button>
+                    <button class="view-btn" data-view="12">Year</button>
+                </div>
+            </div>
+        </div>
 
-    <a href="/">Back</a>
+        <div class="navigation">
+            <button class="nav-btn" id="prevBtn">← Previous</button>
+            <div class="current-period" id="currentPeriod"></div>
+            <button class="nav-btn" id="nextBtn">Next →</button>
+        </div>
+
+        <div class="calendar-wrapper">
+            <div class="calendar-grid view-1" id="calendarGrid"></div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color completed"></div>
+                <span>Completed</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color incomplete"></div>
+                <span>Incomplete</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color neutral"></div>
+                <span>No Data</span>
+            </div>
+        </div>
+    </div>
+
+    <br><br>
+    <a href="/" class="history-link">View Home Page</a>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
