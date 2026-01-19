@@ -2,11 +2,11 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Courier New', Courier, monospace;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f5f5f5;
+    background: #8db09a;
     color: #1f2937;
     font-size: 16px;
     padding: 2rem;
@@ -24,19 +24,15 @@ a:hover {
 .container {
     max-width: 1200px;
     margin: 0 auto;
-    background: #ffffff;
+    background: #fbfbfb;
     padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 .app-container {
     max-width: 500px;
     margin: 0 auto;
-    background: #ffffff;
+    background: #fbfbfb;
     padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 h1 {
@@ -303,12 +299,16 @@ h1 {
     transform: translateY(0);
 }
 
-.history-link {
+.history-link, .home-link {
     display: block;
     margin-top: 1.5rem;
     text-align: center;
     font-weight: 500;
     padding: 0.5rem;
+}
+
+.home-link {
+    color: #fbfbfb;
 }
 
 @media (max-width: 768px) {
