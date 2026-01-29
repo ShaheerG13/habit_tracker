@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
+    <title>Daily Task Check</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Login Screen</h1>
+
+        <form action="/login" method="POST">
+            <label for="login-email">Email:</label><br>
+            <input type="email" id="login-email" name="email" required><br><br>
+
+            <label for="login-password">Password:</label><br>
+            <input type="password" id="login-password" name="password" required><br><br>
+            <a href="/forgot-password" style="color:black">Forgot password?</a><br><br>
+
+            <button type="submit">Login</button><br>
+        </form>
+        
+        <p style ="margin-top: 2rem;">Don't have an account?</p>
+        <a href="/register" class="register-link">Create an account</a>
+    </div>
+</body>
+</html>

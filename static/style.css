@@ -28,6 +28,19 @@ a:hover {
     padding: 2rem;
 }
 
+.login-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: #fbfbfb;
+    padding: 3rem 2rem;
+    justify-items: center;
+}
+
+.login-container button {
+    display: block;
+    margin: 0 auto;
+}
+
 .app-container {
     max-width: 500px;
     margin: 0 auto;
@@ -113,6 +126,8 @@ h1 {
 .current-period {
     font-weight: 600;
     font-size: 16px;
+    margin: auto 10px;
+    text-align: center;
 }
 
 .calendar-wrapper {
@@ -223,6 +238,7 @@ h1 {
     margin-top: 1.5rem;
     padding-top: 1rem;
     border-top: 1px solid #e5e7eb;
+    flex-wrap: wrap;
 }
 
 .legend-item {
@@ -299,7 +315,7 @@ h1 {
     transform: translateY(0);
 }
 
-.history-link, .home-link {
+.history-link, .home-link, .register-link {
     display: block;
     margin-top: 1.5rem;
     text-align: center;
@@ -309,6 +325,15 @@ h1 {
 
 .home-link {
     color: #fbfbfb;
+}
+
+.register-link {
+    color: #1f2937;
+    text-decoration: underline;
+    margin-top: 0;
+}
+.register-link:hover {
+    color: #4493f8;
 }
 
 @media (max-width: 768px) {

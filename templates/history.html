@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8" name="viewport" content="width=device-width, initial-scale=1">
     <title>Task History</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -24,7 +25,7 @@
         </div>
 
         <div class="navigation">
-            <button class="nav-btn" id="prevBtn">← Previous</button>
+            <button class="nav-btn" id="prevBtn">← Prev</button>
             <div class="current-period" id="currentPeriod"></div>
             <button class="nav-btn" id="nextBtn">Next →</button>
         </div>
@@ -51,6 +52,7 @@
 
     <br><br>
     <a href="/" class="home-link">View Home Page</a>
+    <a href="/logout" class="home-link" style="color: black;">Logout</a>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
