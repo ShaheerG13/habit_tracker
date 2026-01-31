@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, jsonify, session
+from flask import Flask, render_template, request, redirect, jsonify, session, g
 from supabase import create_client
 import os
 from dotenv import load_dotenv
@@ -7,12 +7,20 @@ from datetime import date
 load_dotenv()
 
 app = Flask(__name__)
+
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=True,
+)
+
 app.secret_key = os.getenv("SECRET_KEY")
 
 supabase = create_client(
     os.getenv("SUPABASE_URL"),
-    os.getenv("SUPABASE_KEY")
+    os.getenv("SUPABASE_ANON_KEY")
 )
+
 
 # login page
 @app.route("/login", methods=["GET", "POST"])
@@ -27,7 +35,6 @@ def login():
         return redirect("/")
 
     return render_template("login.html")
-
 
 # register page
 @app.route("/register", methods=["GET", "POST"])
@@ -48,12 +55,20 @@ def logout():
     session.clear()
     return redirect("/login")
 
+
 # get user id, to use for postgres db queries
 def get_current_user():
+    if hasattr(g, "user"):
+        return g.user
+
     token = session.get("access_token")
     if not token:
+        g.user = None
         return None
-    return supabase.auth.get_user(token).user
+
+    g.user = supabase.auth.get_user(token).user
+    return g.user
+
 
 #forgot password
 @app.route("/forgot-password", methods=["GET", "POST"])
@@ -64,13 +79,11 @@ def forgot_password():
             supabase.auth.reset_password_for_email(
                 request.form["email"],
                 options={
-                    "redirect_to": "http://localhost:5000/reset-password"
+                    "redirect_to": os.getenv("APP_URL") + "/reset-password"
                 }
             )
-            return render_template(
-                "forgot_password.html",
-                message="If this email exists, a reset link was sent."
-            )
+            return render_template("forgot_password.html",
+                message="If this email exists, a reset link was sent.")
         
         except Exception as e:
             error = str(e)
@@ -84,7 +97,6 @@ def reset_password():
         try:
             access_token = request.form["access_token"]
             new_password = request.form["password"]
-            print(access_token)
 
             if not access_token or "." not in access_token:
                 raise Exception("Invalid or expired reset link")
@@ -102,6 +114,7 @@ def reset_password():
 
     return render_template("reset_password.html", error=error)
 
+
 # main page
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -112,7 +125,6 @@ def index():
     user_id = user.id
     today = date.today().isoformat()
 
-    # update daily_habits in db
     if request.method == "POST":
         checked_ids = {
             int(key.split("_")[1])
@@ -170,6 +182,7 @@ def index():
         task_status=lambda hid: today_status.get(hid, False)
     )
 
+
 # history page with calendar
 @app.route("/history")
 def history():
@@ -221,4 +234,4 @@ def habit_data_api():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
