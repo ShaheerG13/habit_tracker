@@ -263,12 +263,50 @@ def create_habit_api():
     if result.data:
         flash("Habit created successfully!", "success")
     else:
-        flash("Habit already exists or failed to create.", "error")
+        flash("Failed to create habit.", "error")
 
     today = datetime.now(ZoneInfo("America/New_York")).date().isoformat()
     invalidate_index_cache(user_id, today)
     return redirect("/")
-    
+
+
+@app.route("/api/delete-habit", methods=["POST"])
+def delete_habit_api():
+    user = get_current_user()
+    if not user:
+        return redirect("/login")
+
+    habit_id_raw = request.form.get("habit_id")
+    if not habit_id_raw:
+        flash("Missing habit to delete.", "error")
+        return redirect("/")
+
+    try:
+        habit_id = int(habit_id_raw)
+    except (TypeError, ValueError):
+        flash("Invalid habit.", "error")
+        return redirect("/")
+
+    user_id = user.id
+
+    try:
+        (
+            supabase
+            .table("habits")
+            .delete()
+            .eq("id", habit_id)
+            .eq("user_id", user_id)
+            .execute()
+        )
+        flash("Habit deleted successfully.", "success")
+    except Exception:
+        flash("Failed to delete habit.", "error")
+
+    today = datetime.now(ZoneInfo("America/New_York")).date().isoformat()
+    invalidate_index_cache(user_id, today)
+
+    return redirect("/")
+
 
 # history page with calendar
 @app.route("/history")
