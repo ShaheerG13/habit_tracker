@@ -1,8 +1,11 @@
-from flask import Flask, render_template, request, redirect, jsonify, session, g
+from flask import Flask, render_template, request, redirect, jsonify, session, g, flash
 from supabase import create_client
 import os
+import threading
+from cachetools import TTLCache
 from dotenv import load_dotenv
-from datetime import date
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 load_dotenv()
 
@@ -20,6 +23,43 @@ supabase = create_client(
     os.getenv("SUPABASE_URL"),
     os.getenv("SUPABASE_ANON_KEY")
 )
+
+# In-memory cache for index page habits data, avoids hitting supabase on every load
+# Key: (user_id, date_iso), TTL 5 min, invalidated on save or create-habit
+_index_cache = TTLCache(maxsize=500, ttl=300)
+_index_cache_lock = threading.Lock()
+
+# Cache for auth user lookup, reduces supabase auth API calls (one per token per 5 min)
+_user_cache = TTLCache(maxsize=500, ttl=300)
+_user_cache_lock = threading.Lock()
+
+
+# return habits + today's status from cache or supabase
+def get_index_habits(user_id: str, today: str) -> list:
+    key = (user_id, today)
+    with _index_cache_lock:
+        if key in _index_cache:
+            return _index_cache[key]
+    rows = (
+        supabase
+        .table("habits")
+        .select("id,name,daily_habits(completed)")
+        .eq("user_id", user_id)
+        .eq("daily_habits.log_date", today)
+        .order("created_at")
+        .execute()
+        .data
+    )
+    with _index_cache_lock:
+        _index_cache[key] = rows
+    return rows
+
+
+# Clear cached index data so next load refetches from supabase
+def invalidate_index_cache(user_id: str, today: str) -> None:
+    key = (user_id, today)
+    with _index_cache_lock:
+        _index_cache.pop(key, None)
 
 
 # login page
@@ -52,6 +92,10 @@ def register():
 # logout function
 @app.route("/logout")
 def logout():
+    token = session.get("access_token")
+    if token:
+        with _user_cache_lock:
+            _user_cache.pop(token, None)
     session.clear()
     return redirect("/login")
 
@@ -66,11 +110,27 @@ def get_current_user():
         g.user = None
         return None
 
-    g.user = supabase.auth.get_user(token).user
+    with _user_cache_lock:
+        if token in _user_cache:
+            g.user = _user_cache[token]
+            return g.user
+
+    try:
+        supabase.auth.set_session(
+            access_token=token,
+            refresh_token=""
+        )
+        user_response = supabase.auth.get_user(token)
+        g.user = getattr(user_response, "user", None)
+        with _user_cache_lock:
+            _user_cache[token] = g.user
+    except Exception:
+        g.user = None
+
     return g.user
 
 
-#forgot password
+# forgot password
 @app.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
     error = None
@@ -123,7 +183,7 @@ def index():
         return redirect("/login")
 
     user_id = user.id
-    today = date.today().isoformat()
+    today = datetime.now(ZoneInfo("America/New_York")).date().isoformat()
 
     if request.method == "POST":
         checked_ids = {
@@ -156,18 +216,10 @@ def index():
                 on_conflict="habit_id,log_date"
             ).execute()
 
+        invalidate_index_cache(user_id, today)
         return redirect("/")
 
-    rows = (
-        supabase
-        .table("habits")
-        .select("id,name,daily_habits(completed)")
-        .eq("user_id", user_id)
-        .eq("daily_habits.log_date", today)
-        .order("created_at")
-        .execute()
-        .data
-    )
+    rows = get_index_habits(user_id, today)
 
     habit_names = {r["id"]: r["name"] for r in rows}
     today_status = {
@@ -182,6 +234,41 @@ def index():
         task_status=lambda hid: today_status.get(hid, False)
     )
 
+# create new habit
+@app.route("/api/create-habit", methods=["POST"])
+def create_habit_api():
+    user = get_current_user()
+    if not user:
+        return redirect("/login")
+
+    user_id = user.id
+    habit_name = request.form.get('name_input', '').strip()
+
+    if not habit_name:
+        flash("Habit name cannot be empty.", "error")
+        return redirect("/")
+
+    data = {
+        "user_id": user_id,
+        "name": habit_name
+    }
+    
+    result = (
+        supabase
+        .table("habits")
+        .upsert(data, on_conflict="user_id,name")
+        .execute()
+    )
+
+    if result.data:
+        flash("Habit created successfully!", "success")
+    else:
+        flash("Habit already exists or failed to create.", "error")
+
+    today = datetime.now(ZoneInfo("America/New_York")).date().isoformat()
+    invalidate_index_cache(user_id, today)
+    return redirect("/")
+    
 
 # history page with calendar
 @app.route("/history")
@@ -196,7 +283,7 @@ def history():
 def habit_data_api():
     user = get_current_user()
     if not user:
-        return jsonify({"error": "Not authenticated"}), 401
+        return redirect("/login")
 
     user_id = user.id
 
