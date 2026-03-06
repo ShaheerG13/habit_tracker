@@ -23,6 +23,15 @@
                 <label class="habit-label">
                     <input type="checkbox" name="habit_{{ hid }}" {% if task_status(hid) %}checked{% endif %}>
                     <span>{{ name }}</span>
+                    <button
+                        type="button"
+                        class="habit-delete"
+                        data-habit-id="{{ hid }}"
+                        data-habit-name="{{ name }}"
+                        aria-label="Delete habit {{ name }}"
+                    >
+                        &times;
+                    </button>
                 </label>
             {% endfor %}
 
@@ -34,9 +43,10 @@
             <button type="submit" class="save-btn">Save</button>
         </form>
 
-         <div id="myModal" class="modal">
+        <!-- Create habit modal -->
+        <div id="myModal" class="modal">
             <div class="modal-content">
-                <span class="close">&times;</span>
+                <span class="close create-close">&times;</span>
                 <p class="modal-title">Create a new habit:</p>
 
                 <form action="/api/create-habit" method="POST">
@@ -46,6 +56,33 @@
                     <button type="submit" class="modal-save-btn">Add Habit</button>
                 </form>
 
+            </div>
+        </div>
+
+        <!-- Delete habit confirmation modal -->
+        <div id="deleteModal" class="modal">
+            <div class="modal-content delete-modal-content">
+                <span class="close delete-close">&times;</span>
+                <p class="modal-title">Delete habit</p>
+                <p class="delete-warning">
+                    Deleting this habit will permanently remove it and its history. This action cannot be undone.
+                </p>
+                <p class="delete-instruction">
+                    To confirm, type the habit name exactly as shown below.
+                </p>
+                <p class="delete-habit-name" id="delete-habit-name-display"></p>
+
+                <form id="delete-habit-form" action="/api/delete-habit" method="POST">
+                    <input type="hidden" name="habit_id" id="delete-habit-id-input">
+                    <input
+                        type="text"
+                        class="modal-input"
+                        id="delete-habit-name-input"
+                        placeholder="Type habit name exactly"
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="modal-delete-btn" disabled>Delete habit</button>
+                </form>
             </div>
         </div>
 
