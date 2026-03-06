@@ -9,6 +9,15 @@
     <div class="app-container">
         <h1>Daily Habits</h1>
 
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <span class="{{ category }}">{{ message }}</span>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Habits -->
         <form method="post" class="habit-form">
             {% for hid, name in habit_names.items() %}
                 <label class="habit-label">
@@ -16,11 +25,35 @@
                     <span>{{ name }}</span>
                 </label>
             {% endfor %}
+
+            <div class="modalBtnTxt">
+                <button id="modalBtn" class="modalBtn">+</button>
+                <span>Add Habit</span>
+            </div>
+
             <button type="submit" class="save-btn">Save</button>
         </form>
 
+         <div id="myModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <p class="modal-title">Create a new habit:</p>
+
+                <form action="/api/create-habit" method="POST">
+                    <label class="modal-label" for="habit-name">Habit Name:</label>
+                    <input class="modal-input" type="text" id="habit-name" name="name_input" required>
+
+                    <button type="submit" class="modal-save-btn">Add Habit</button>
+                </form>
+
+            </div>
+        </div>
+
+        <!-- Links -->
         <a href="/history" class="history-link">View Task History</a>
         <a href="/logout" class="history-link" style="color: black;">Logout</a>
     </div>
+
+    <script src="{{ url_for('static', filename='index_scripts.js') }}"></script>
 </body>
 </html>
