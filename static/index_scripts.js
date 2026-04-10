@@ -1,7 +1,7 @@
 // create-habit modal
-var createModal = document.getElementById("myModal");
-var createBtn = document.getElementById("modalBtn");
-var createClose = document.querySelector(".create-close");
+let createModal = document.getElementById("myModal");
+let createBtn = document.getElementById("modalBtn");
+let createClose = document.querySelector(".create-close");
 
 if (createBtn && createModal) {
   createBtn.onclick = function (e) {
@@ -17,13 +17,13 @@ if (createClose && createModal) {
 }
 
 // delete-habit modal
-var deleteModal = document.getElementById("deleteModal");
-var deleteClose = document.querySelector(".delete-close");
-var deleteHabitForm = document.getElementById("delete-habit-form");
-var deleteHabitIdInput = document.getElementById("delete-habit-id-input");
-var deleteHabitNameDisplay = document.getElementById("delete-habit-name-display");
-var deleteHabitNameInput = document.getElementById("delete-habit-name-input");
-var deleteHabitSubmitBtn = deleteHabitForm
+let deleteModal = document.getElementById("deleteModal");
+let deleteClose = document.querySelector(".delete-close");
+let deleteHabitForm = document.getElementById("delete-habit-form");
+let deleteHabitIdInput = document.getElementById("delete-habit-id-input");
+let deleteHabitNameDisplay = document.getElementById("delete-habit-name-display");
+let deleteHabitNameInput = document.getElementById("delete-habit-name-input");
+let deleteHabitSubmitBtn = deleteHabitForm
   ? deleteHabitForm.querySelector(".modal-delete-btn")
   : null;
 
@@ -43,8 +43,8 @@ document.querySelectorAll(".habit-delete").forEach(function (button) {
       return;
     }
 
-    var habitId = this.getAttribute("data-habit-id");
-    var habitName = this.getAttribute("data-habit-name") || "";
+    let habitId = this.getAttribute("data-habit-id");
+    let habitName = this.getAttribute("data-habit-name") || "";
 
     deleteHabitIdInput.value = habitId;
     deleteHabitNameDisplay.textContent = habitName;
@@ -59,8 +59,8 @@ document.querySelectorAll(".habit-delete").forEach(function (button) {
 // enable delete button only when typed name matches
 if (deleteHabitNameInput && deleteHabitSubmitBtn && deleteHabitNameDisplay) {
   deleteHabitNameInput.addEventListener("input", function () {
-    var typed = deleteHabitNameInput.value || "";
-    var target = deleteHabitNameDisplay.textContent || "";
+    let typed = deleteHabitNameInput.value || "";
+    let target = deleteHabitNameDisplay.textContent || "";
     deleteHabitSubmitBtn.disabled = typed !== target;
   });
 }
