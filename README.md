@@ -1,7 +1,5 @@
 # Habit Tracker
 
-**- A WORK IN PROGRESS**
-
 A full-stack habit tracking web app built with Flask, Supabase, and JavaScript. Track your daily habits, view completion history, and stay consistent.
 
 ---
